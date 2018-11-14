@@ -1,0 +1,104 @@
+<div class="content-wraper">
+
+  <div class="container-fluid" style="padding: 0px;">
+    <div class="row">
+      <div class="col-xs-12 col-sm-12">
+        <div class="page-header page-header-default">
+          <div class="page-header-content">
+            <div class="page-title">
+              <h4>
+                <i class="icon-arrow-left52 position-left"></i>
+                <span class="text-semibold">Home</span> - Report</h4>
+              <a class="heading-elements-toggle">
+                <i class="icon-more"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="breadcrumb-line">
+            <a class="breadcrumb-elements-toggle">
+              <i class="icon-menu-open"></i>
+            </a>
+            <ul class="breadcrumb">
+              <li>
+                <a routerLink="/producer/dashboard">
+                  <i class="icon-home2 position-left"></i> Home</a>
+              </li>
+              <li class="active">Report</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+
+    <div class="row">
+      <div class="col-xs-12 col-sm-12">
+        <div class="card p-2">
+          <div class="card-body">
+
+            <form (ngSubmit)="getEventEntriesUsers()" #validateForm="ngForm" novalidate>
+              <h4 class="card-title">Search Criteria</h4>
+              <div class="form-row">
+                
+                
+              </div>
+              <div class="form-row">
+                <div class="form-group col-xs-12  col-sm-4 col-md-5 col-lg-3" hintLabel="Max 20 characters">
+                  <select class="form-control" placeholder="Search Name" name="searchName" [(ngModel)]="searchCriteria.searchName">
+                    <option value="" disabled>Choose a Search Name</option>
+                    <option *ngFor="let searchName of searchNameOption" [value]="searchName.value">{{searchName.viewValue}}</option>
+                  </select>
+                </div>
+                <div class="form-group col-xs-12 col-sm-4 col-md-5 col-lg-3" hintLabel="Max 20 characters">
+                  <input class="form-control" id="searchValue" name="searchValue" type="text" required [(ngModel)]="searchCriteria.searchValue"
+                    #rc_name="ngModel" pattern="[0-9a-zA-Z _]*" placeholder="Search Value">
+                </div>
+                <div class="form-group col-lg-4 col-sm-2">
+                  <button class="btn btn-primary " type="button" name="action" (click)="getReportsByFiler()">
+                    search
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card m-t-10">
+          <div class="card-body">
+            <div class="table-responsive table-hover">
+              <table id="basic-table" class="riders table">
+                <thead class="thead-dark">
+                  <tr>
+                    <th scope="col">Sl.no</th>
+                    <th scope="col">user Name</th>
+                    <th scope="col">Ride Class</th>
+                    <th scope="col">Rider Name</th>
+                    <th scope="col">Horse Name</th>
+                    <th scope="col">Event Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let report of filterData;let i=index">
+                    <ng-container>
+                    <td>{{i+1}}</td>
+                    <td>{{report.username }}</td>
+                    <td>{{report.raceclass }}</td>
+                    <td>{{report.ridername }}</td>
+                    <td>{{report.horsename }}</td>
+                    <td>{{report.event_name}}</td>
+                  </ng-container>
+                  </tr>
+                </tbody>
+              </table>
+              <button class="btn btn-light hide-on-print " (click)="generate()">Generate PDF</button>
+              <!-- <button class="btn btn-light hide-on-print " (click)="print_instant()">Print report</button> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
