@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import { ipcRenderer, webFrame, remote } from 'electron';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
+import * as SerialPort from 'serialport';
 
 @Injectable()
 export class ElectronService {
@@ -14,6 +15,7 @@ export class ElectronService {
   remote: typeof remote;
   childProcess: typeof childProcess;
   fs: typeof fs;
+  serialPort: typeof SerialPort;
 
   constructor() {
     // Conditional imports
@@ -24,6 +26,7 @@ export class ElectronService {
 
       this.childProcess = window.require('child_process');
       this.fs = window.require('fs');
+      this.serialPort = window.require('serialport');
     }
   }
 

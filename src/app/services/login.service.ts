@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from "rxjs";
+import * as io from 'socket.io-client';
+
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class LoginService {
+  private url = 'https://racebox.herokuapp.com';
+  private socket;
 
   private messageSource = new BehaviorSubject<string>("default message");
   currentMessage = this.messageSource.asObservable();
@@ -43,8 +47,6 @@ export class LoginService {
   }
 
   betweenDates(startDate,endDate){
-  // Returns an array of dates between the two dates
-    // console.log("dates");
     var dates = [],
       currentDate = startDate,
       addDays = function (days) {
@@ -58,4 +60,28 @@ export class LoginService {
     }
     return dates;
 }
+
+  
+  
+  sendMessage(message){
+    console.log(typeof message);
+    message = JSON.parse(message);
+    console.log(typeof message);
+    this.socket.emit('add-message', message);    
+  }
+  
+  getMessages() {
+    let observable = new Observable(observer => {
+      this.socket = io(this.url);
+      this.socket.on('Updated Fields', (data) => {
+        console.log(data);
+        console.log(typeof data);
+        observer.next(data);    
+      });
+      return () => {
+        this.socket.disconnect();
+      };  
+    })     
+    return observable;
+  }  
 }

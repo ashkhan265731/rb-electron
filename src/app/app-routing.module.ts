@@ -1,7 +1,6 @@
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { EventDetailsComponent } from './components/event-details/event-details.component';
-import { DrawListByEventCategoryComponent } from './components/draw-list-by-event-category/draw-list-by-event-category.component';
 
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
@@ -17,13 +16,9 @@ const routes: Routes = [
       component: HomeComponent
     },
     {
-      path: 'event_details/:id', 
+      path: 'event_details/:eid', 
       component: EventDetailsComponent
-    },
-    { 
-      path: 'userreportbyeventdetails/:eid/:searchvalue/:searchtype',
-      component: DrawListByEventCategoryComponent
-    },    
+    },      
 ];
 
 @NgModule({

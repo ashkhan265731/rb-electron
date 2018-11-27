@@ -11,37 +11,40 @@ import { Location } from '@angular/common';
 export class LoginComponent implements OnInit {
   serviceUrl = 'https://racebox.herokuapp.com';
   loginUser: any = {};
-  loginMsg:any;
-
+  loginMsg: any;
+  
+ 
   constructor(
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute,
-    private location: Location
+    private location: Location,
+
   ) { }
 
   ngOnInit() {
+    
   }
 
   login() {
-  	console.log('Login in called');
+    console.log('Login in called');
     var current = this;
-    var res = this.http.post(this.serviceUrl+"/loginuser", this.loginUser)
+    var res = this.http.post(this.serviceUrl + "/loginuser", this.loginUser)
       .subscribe(function (loginResponse) {
         if (loginResponse != null) {
           if (typeof (Storage) !== "undefined") {
             sessionStorage.setItem("user", JSON.stringify(loginResponse));
           }
           var user = JSON.parse(sessionStorage.getItem("user"));
-         
+
           if (user.user_type == "producer") {
-          	current.loginMsg = "Username logged in";
-          	current.router.navigate(["home"]);
+            current.loginMsg = "Username logged in";
+            current.router.navigate(["home"]);
           }
           else {
-          	current.loginMsg = "User is not producer";
+            current.loginMsg = "User is not producer";
           }
-		
+
         } else {
           current.loginMsg = "Username or password is incorrect";
         }

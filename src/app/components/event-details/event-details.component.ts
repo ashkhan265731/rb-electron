@@ -1,134 +1,136 @@
-import { Component, OnInit, Input, Inject, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import { $ } from 'protractor';
-import { Location } from '@angular/common';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { LoginService } from './../../services/login.service';
+import { ElectronService } from '../../providers/electron.service';
+
+declare var jsPDF: any;
 
 @Component({
   selector: 'app-event-details',
   templateUrl: './event-details.component.html',
   styleUrls: ['./event-details.component.scss']
 })
-export class EventDetailsComponent implements OnInit,OnChanges {
+export class EventDetailsComponent implements OnInit {
+  @Output() alert: EventEmitter<any> = new EventEmitter();
+
+  ports: any = [];
+  portName: string = '';
+  port: any;
+  isPortOpen: boolean = false;
+  raceTime: string = '';
+  drawIndex: number = 0;
+
+  pageTitle: any = 'raceclasslist';
+  sessionid: any = '';
   serviceUrl = 'https://racebox.herokuapp.com';
-  message: any;
-  from_date: any;
-  to_date: any;
-  s_days: any = [];
 
-
-  stalls: any;
-  event_fromdate: any;
-  event_todate: any;
-  //  @Input('eventId') eventId: String;
-  attachmentList: any = [];
   eventData: any = {};
-  eventId: String = '';
-  panelOpenState: boolean = false;
-  raceClassDataReponse: any;
-  eventSignedUpUsers: any = [];
-  errorLog: any = false;
   alertMessage: any = null;
-  sessionid: any;
-  modalTitle: any = "Add/Edit";
+  errorLog: any = false;
+  eventId: String = '';
+  currentDate: any;
+  raceClassDataReponse: any;
+  eventSignedUpUsers: any = {};
+  eventName: any = '';
+  seachValue: any = "";
+  searchType: any = "";
+  rider_horse_lists: any = [];
+  drawingsResponse: any;
+  hideSortIcon: any = true;
 
-  /*modal varibles*/
-  modalFormAction: any;
-  modalFormType: any;
-  raceclass: any = {};
 
-  sessionTypeList: any = {};
- 
-
-  validateDate: any = false;
-  validateSFromTime: any = false;
-  validateSToTime: any = false;
-  validateSessionType: any = false;
-  
-  time = { hour: 13, minute: 30 };
-  sessDataResponse: any={};
   constructor(
     private http: HttpClient,
     private router: Router,
+    private loginService: LoginService,
     private route: ActivatedRoute,
-    private _location: Location,
-    private loginService: LoginService
+    private electron: ElectronService,
 
   ) {
-    this.eventId = this.route.snapshot.params['id'];
-    
+    this.loginService.changeMessage("raceclasslist");
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth() + 1; //January is 0!
+    var yyyy = today.getFullYear();
+    this.currentDate = Date.parse(new Date().toString());
   }
 
   ngOnInit() {
-
-    this.router.events.subscribe((evt) => {
-      if (!(evt instanceof NavigationEnd)) {
-        return;
-      }
-      window.scrollTo(0, 0)
-    });
-    this.getSess();
-    var session = JSON.parse(sessionStorage.getItem("user"));
-
-    this.sessionid = session._id;
-    // if(session._id == )
-    this.eventId = this.route.snapshot.params['id'];
+    this.eventId = this.route.snapshot.params['eid'];
     this.getEventDetails();
-    this.event_fromdate = this.eventData.from_date;
-    this.event_todate = this.eventData.to_date;
 
-    // console.log(this.event_fromdate);
+    this.electron.serialPort.list().then((ports: any) => {
+      this.ports = ports;
 
-  }
-
-
-  getUser(cn, cr, searchName) {
-    var current = this;
-    this.http.get(this.serviceUrl + "/getRegisteredUsersForEvent/" + this.eventId)
-      .subscribe(function (response) {
-        current.errorLog = false;
-        current.eventSignedUpUsers = response;
-
-        var searchValue = cn;
-        var result = current.eventSignedUpUsers.filter(function (el, index) {
-
-          if (searchName == 'raceclass') {
-            for (var x = 0; x <= el.racetypeList.length; x++) {
-              return el.racetypeList[x].ridetype[0] == searchValue;
-            }
-          }
-          else if (searchName == 'sessionTypeList') {
-            for (var x = 0; x <= el.etimeslots.length; x++) {
-              return el.etimeslots[x].exhibition_day == searchValue;
-            }
-          }
-    
-          else if (searchName == 'stalls') {
-            return el.userStalls >= 1;
-          }
-        })
-      }, function (err) {
-        current.errorLog = true;
-        current.alertMessage = {
-          type: 'danger',
-          title: 'Something Went wrong. Please Contact Administartor',
-          data: err
-        };
+      this.ports.forEach((port) => {
+        this.portName = port.comName;
+        console.log('Port Name is ' + this.portName);
       });
 
+    }).catch((err: any) => {
+      console.log('error occured while listening to serial port')
+    });
+  }
 
+  openPort() {
+    this.port = new this.electron.serialPort(this.portName, {
+      baudRate: 1200
+    }, (err) => {
+      if (err) {
+        console.log('Error occured while opening Port ' + this.portName + '\n' + ' Error' + err);
+      } else {
+        console.log('Port ' + this.portName + 'is now open');
+        this.isPortOpen = true;
+      }
+    });
+  }
+
+  closePort() {
+    this.port.close(() => {
+      this.isPortOpen = false
+    });
+  }
+
+  readPort() {
+    this.port.on('data', (data) => {
+      var regexStr = new RegExp('\.[0-9][0-9][0-9]$');
+      data = data.toString('ascii');
+      this.raceTime += data;
+
+      //this.raceTime = this.raceTime.replace(/[^a-zA-Z0-9.]/g, '');
+      if (this.raceTime != null && this.raceTime != '') {
+        console.log('PORT :' + this.raceTime + ':');
+      }
+
+      if (this.raceTime.indexOf('(M)') != -1) {
+        this.raceTime = this.raceTime.replace(/[^0-9.]/g, '');
+        this.updateTimings(this.raceTime);
+        console.log('RACE TIME : --> ' + this.raceTime);
+        this.raceTime = '';
+      }
+      else if (this.raceTime.indexOf('--NO TIME--') != -1) {
+        this.raceTime = this.raceTime.replace(/[^a-zA-Z0-9.]/g, '');
+        this.updateTimings(this.raceTime);
+        console.log('RACE TIME : --> ' + this.raceTime);
+        this.raceTime = '';
+      }
+      else if (this.raceTime.indexOf('Penalty') != -1 && this.raceTime.search(regexStr) > -1) {
+        this.raceTime = this.raceTime.replace(/ +(?= )/g, '');
+        this.updateTimings(this.raceTime);
+        console.log('RACE REGEX TIME : --> ' + this.raceTime);
+        this.raceTime = '';
+      }
+    });
   }
 
   getEventDetails() {
     var current = this;
-
     this.http.get(this.serviceUrl + "/geteventdetails/" + this.eventId)
       .subscribe(function (response) {
         current.errorLog = false;
         current.eventData = response;
-        current.getDaysBetweenEvents(response['from_date'], response['to_date']);
-        current.getRaceClassType();
+        //current.getRaceClassType();
       }, function (err) {
         current.errorLog = true;
         current.alertMessage = {
@@ -137,269 +139,25 @@ export class EventDetailsComponent implements OnInit,OnChanges {
           data: err
         };
       }
-      );
-  }
-
-  onUploadFiles(evt: any) {
-    if (evt.error) {
-      throw evt.error;
-    }
-    const files = evt.files;
-  }
-  getRaceClassType() {
-    var current = this;
-    // this.http.get("http://localhost:3000/getraceclasstype")
-    var response = this.http.get(this.serviceUrl + "/getraceclasstype");
-    response.subscribe(function (response) {
-      current.errorLog = false;
-      current.raceClassDataReponse = response;
-    }, function (err) {
-      current.errorLog = true;
-      current.alertMessage = {
-        type: 'danger',
-        title: 'Something Went wrong. Please Contact Administartor',
-        data: err
-      };
-    }
     );
   }
 
-  getDaysBetweenEvents(from, to) {
-    from = new Date(from / 1);
-    to = new Date(to / 1);
-    if (from > to) {
-      alert("from date should be lesser than to date");
-      this.to_date = "";
+  checkDrawExists(index: number, raceClassObject, searchType) {
+    if (this.isPortOpen) {
+      this.closePort();
+      this.drawIndex = 0;
     }
-    if (from != null && to != null) {
-      var dates = this.loginService.betweenDates(from, to);
-      var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      var currentContext = this;
-      currentContext.s_days = [];
-      dates.forEach(function (date) {
-        currentContext.s_days.push(days[date.getDay()] + '(' + parseInt(date.getMonth() + 1) + '/' + date.getDate() + ')');
-
-      });
-    }
-  }
-  getExhibitionDays(from, to) {
-
-    if (from != null && to != null) {
-      var fromdate = new Date(from.year, from.month - 1, from.day);
-      var todate = new Date(to.year, to.month - 1, to.day);
-      var dates = this.loginService.betweenDates(fromdate, todate);
-
-      // Usage
-      var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      var currentContext = this;
-      this.s_days = [];
-      dates.forEach(function (date) {
-        currentContext.s_days.push(days[date.getDay()] + '(' + (parseInt(date.getMonth() + 1)) + '/' + date.getDate() + ')');
-   //  console.log(date.getMonth());
-      });
-    }
-  }
-
-
-  // validation function
-  validateStalls() {
-    if (!this.eventData.stalls) {
-      this.eventData.stalls = 0;
-    }
-
-    if (this.eventData.stalls <= 0) {
-      this.eventData.stalls_price = 0;
-    }
-  }
-
-  validateElectric() {
-    if (!this.eventData.electric_quantity) {
-      this.eventData.electric_quantity = 0;
-    }
-
-    if (this.eventData.electric_quantity <= 0) {
-      this.eventData.electric_price = 0;
-    }
-  }
-  validateShavings() {
-    if (!this.eventData.shavings_quantity) {
-      this.eventData.shavings_quantity = 0;
-    }
-
-    if (this.eventData.shavings_quantity <= 0) {
-      this.eventData.shavings_price = 0;
-    }
-  }
-  validateTieouts() {
-    if (!this.eventData.tieout_quantity) {
-      this.eventData.tieout_quantity = 0;
-    }
-
-    if (this.eventData.tieout_quantity <= 0) {
-      this.eventData.tieout_price = 0;
-    }
-  }
-  getValidateDate(fromdate, todate) {
-    if (fromdate && todate) {
-      if (fromdate.year <= todate.year && fromdate.month <= todate.month && fromdate.day <= todate.day) {
-        this.validateDate = false;
-        //calculate days between dates
-        this.getExhibitionDays(fromdate, todate);
-      } else {
-        this.validateDate = true;
-      }
-    }
-  }
-
-  getValidateSFromTime(from_time) {
-    //  console.log(from_time);
-
-    if (from_time == null) {
-      this.validateSFromTime = true;
-    } else {
-      this.validateSFromTime = false;
-    }
-  }
-  getValidateSToTime(to_time) {
-    if (to_time == null) {
-      this.validateSToTime = true;
-    } else {
-      this.validateSToTime = false;
-    }
-  }
-
-  resetSTime() {
-    var current = this;
-    setTimeout(function () {
-      //  console.log(current.validateEFromTime);
-      current.validateSFromTime = false;
-      current.validateSToTime = false;
-      //  console.log(current.validateEFromTime);
-    }, 500)
-
-  }
-
-
- 
-  //validaion functions
-
-  modalFormIndex: any;
-  openDialog(EventValues, editType, formaction, index): void {
-    this.modalFormIndex = index;
-    this.modalFormAction = formaction;
-    this.modalFormType = editType;
-
-    //reset validation parametes values
-    this.validateSFromTime = false;
-    this.validateSToTime = false;
-  
-    this.sessionTypeList.s_days = this.s_days[0];
-  
-  }
-
-  closePopup(form, formAction) {
-    if (formAction == 'add') {
-      form.reset();
-    }
-
-    this.getEventDetails();
-  }
-
-  updateEvent(form, formAction) {
 
     var current = this;
-    var data;
-    //raceclass
-    if (this.modalFormType == "racetype" && this.modalFormAction == 'edit') {
-      data = JSON.stringify(this.eventData.racetype);
-    } else if (this.modalFormType == "racetype" && this.modalFormAction == 'add') {
-      var obj = {
-        type: this.raceclass.type,
-        price: this.raceclass.price
-      }
-      this.eventData.racetype.push(obj);
-      data = JSON.stringify(this.eventData.racetype);
-      // console.log(data);
-    }
-
-    //sessionTypeList
-    if (this.modalFormType == "timeslot" && this.modalFormAction == 'edit') {
-      data = JSON.stringify(this.eventData.timeslot);
-    } else if (this.modalFormType == "timeslot" && this.modalFormAction == 'add') {
-      var date = new Date();
-      var rand = Math.floor((Math.random() * 1000000) + 1);
-      var id = Date.parse(date.toString()) + rand;
-      var sess_object = {
-        id: id,
-        session_type: this.sessionTypeList.sess_name,
-        from: this.sessionTypeList.from_time,
-        to: this.sessionTypeList.to_time,
-        s_day: this.sessionTypeList.s_days,
-        quantity: this.sessionTypeList.quantity,
-        fee: this.sessionTypeList.fee
-      }
-      this.eventData.timeslot.push(sess_object);
-      data = JSON.stringify(this.eventData.timeslot);
-    }
- 
-  
-    //add ons
-    if (this.modalFormType == "addons" && this.modalFormAction == 'edit') {
-
-      data = {
-        "stalls": this.eventData.stalls,
-        "stalls_price": this.eventData.stalls_price,
-        "shavings_quantity": this.eventData.shavings_quantity,
-        "shavings_price": this.eventData.shavings_price,
-        "electric_quantity": this.eventData.electric_quantity,
-        "electric_price": this.eventData.electric_price,
-        // "tieout_quantity": this.eventData.tieout_quantity,
-        "tieout_price": this.eventData.tieout_price,
-        "late_fee": this.eventData.late_fee,
-        "office_fee": this.eventData.office_fee,
-      }
-      data = JSON.stringify(data);
-    }
-
-    // console.log("save event");
-    // console.log(data);
-    // console.log(this.modalFormType);
-    var response = this.http.post(this.serviceUrl + "/updateevent/" + this.eventId + "/" + this.modalFormType, { "data": data })
-      .subscribe(function (response) {
-        current.errorLog = false;
-        current.alertMessage = {
-          type: 'success',
-          title: 'Event Edited Successfully',
-          data: ''
-        };
-        if (formAction == 'add') {
-          form.reset();
-        }
-
-      }, function (err) {
-        current.errorLog = true;
-        current.alertMessage = {
-          type: 'danger',
-          title: 'Something Went wrong. Please Contact Administartor',
-          data: err
-        };
-      }
-      );
-
-  }
-
-  goBack() {
-    this._location.back();
-
-  }
-  getSess() {
-    var current = this;
-    var response = this.loginService.getFormData(this.serviceUrl + '/getsessinfoall');
+    var response = this.loginService.getFormData(this.serviceUrl + '/getdrawings/' + this.eventId + '/' + raceClassObject.type);
     response.subscribe((response) => {
-      console.log(response);
+      if (response['length'] > 0) {
+        current.drawingsResponse = response;
+      } else {
+        current.drawingsResponse = [];
+        console.log("get riders");
+      }
       current.errorLog = false;
-      current.sessDataResponse = response;
-      console.log(current.sessDataResponse);
     },
       function (err) {
         current.errorLog = true;
@@ -411,32 +169,229 @@ export class EventDetailsComponent implements OnInit,OnChanges {
       });
   }
 
-  ngOnChanges(){
-    console.log(this.eventData.racetype);
-  }
+  updateTimings(raceTime:string){
+    for(var i = 0; i < this.drawingsResponse[0].list.length; i++){
+      if(i == this.drawIndex){
+        this.drawingsResponse[0].list[this.drawIndex].raceTime = raceTime;
+        console.log(this.drawingsResponse[this.drawIndex]);
 
-  reorderRaceclass(event,racetype){
-    this.eventData.racetype = event;
-    var data = JSON.stringify(this.eventData.racetype);
-    console.log(event);
-    var current= this;
-    var response = this.http.post(this.serviceUrl + "/raceclass_rearrange/" + this.eventId + "/" , { "data":  data})
-      .subscribe(function (response) {
-        current.errorLog = false;
-       
-        
+        var data = {
+          draw_id : this.drawingsResponse[0]._id,
+          time: raceTime,
+          position: i        
+        }
 
-      }, function (err) {
-        current.errorLog = true;
-        current.alertMessage = {
-          type: 'danger',
-          title: 'Something Went wrong. Please Contact Administartor',
-          data: err
-        };
+        var response = this.http.post(this.serviceUrl + "/addraceresults" , {"data": JSON.stringify(data) })
+        .subscribe(function (response) {
+          this.errorLog = false;
+          this.alertMessage = {
+            type: 'success',
+            title: 'Event Edited Successfully',
+            data: ''
+          };
+        }, function (err) {
+          this.errorLog = true;
+          this.alertMessage = {
+            type: 'danger',
+            title: 'Something Went wrong. Please Contact Administartor',
+            data: err
+          };
+        });
+
+        this.drawIndex++;
+        break;
       }
-      );
+    }
   }
 
 
+  /*
+    getRaceClassType() {
+     var current = this;
+     var response = this.http.get(this.serviceUrl + "/getraceclasstype");
+     response.subscribe(function (response) {
+       current.errorLog = false;
+       current.raceClassDataReponse = response;
+     }, function (err) {
+       current.errorLog = true;
+       current.alertMessage = {
+         type: 'danger',
+         title: 'Something Went wrong. Please Contact Administartor',
+         data: err
+       };
+     }
+     );
+   }
+ 
+   sIndex: number = null;
+ 
+   getRiders(index: number, raceClassObject, searchType) {
+     this.sIndex = index;
+     var current = this;
+     current.rider_horse_lists = [];
+     current.seachValue = raceClassObject.type;
+     // console.log(current.seachValue);
+     this.http.get(this.serviceUrl + "/getRegisteredUsersForEvent/" + this.eventId)
+       .subscribe(function (response) {
+         current.errorLog = false;
+         current.eventSignedUpUsers = response;
+         current.eventName = current.eventSignedUpUsers[0].event_id.event_name;
+         // console.log("search value");
+         // console.log(current.seachValue);
+ 
+         var result = current.eventSignedUpUsers.filter(function (el, index) {
+           if (searchType == 'raceclass') {
+             for (var x = 0; x <= el.racetypeList.length; x++) {
+               if (el.racetypeList[x]) {
+                 if (el.racetypeList[x].ridetype[0].trim() == current.seachValue.trim()) {
+                   current.rider_horse_lists.push({
+                     rider: el.racetypeList[x].rider,
+                     horse: el.racetypeList[x].horse
+                   });
+                 }
+               }
+             }
+ 
+           }
+         })
+         // console.log(current.rider_horse_lists);
+       })
+   }
+ 
+   shuffleArray(array) {
+     //  console.log(array);
+     for (let i = array.length - 1; i > 0; i--) {
+       const j = Math.floor(Math.random() * (i + 1));
+       [array[i], array[j]] = [array[j], array[i]]; // eslint-disable-line no-param-reassign
+     }
+     // console.log("shuffled_array");
+     // console.log(array)
+     this.rider_horse_lists = array;
+   }
+ 
+   saveDrawArray(drawArray) {
+     console.log(this.seachValue);
+     console.log(drawArray);
+     var drawArrayObject = []
+ 
+     for (var x = 0; x < drawArray.length; x++) {
+       drawArrayObject.push(
+         {
+           draw_number: x + 1,
+           horse_id: drawArray[x].horse['_id'],
+           rider_id: drawArray[x].rider['_id'],
+ 
+         }
+       )
+     }
+ 
+     var dataObject = {
+       drawList: drawArrayObject,
+       event_id: this.eventId,
+       raceclass_name: this.seachValue.toLowerCase().replace(/\s\s+/g, ' '),
+       draw_date: this.currentDate
+     }
+ 
+     var data = JSON.stringify(dataObject);
+ 
+     console.log(data);
+     var current = this;
+     var response = this.http.post(this.serviceUrl + "/addDraw", { data: data })
+       .subscribe((res) => {
+         current.errorLog = false;
+         current.alertMessage = {
+           type: 'success',
+           title: 'Draw Added!!',
+           data: ''
+         }
+ 
+       },
+         function (err) {
+           current.errorLog = true;
+           current.alertMessage = {
+             type: 'danger',
+             title: 'Something Went wrong. Please Contact Administartor',
+             data: err
+           };
+         });
+ 
+ 
+ 
+ 
+   }
+ 
+ 
+ 
+   generate() {
+   this.hideSortIcon =false;
+     var doc = new jsPDF('p', 'pt');
+ 
+     var res = doc.autoTableHtmlToJson(document.getElementById("report-table"));
+     //doc.autoTable(res.columns, res.data, {margin: {top: 80}, theme: 'grid'});
+ 
+     var header = function (data) {
+       doc.setFontSize(18);
+       doc.setTextColor(40);
+       doc.setFontStyle('normal');
+       //doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 20, 50, 50);
+       doc.text("Report", data.settings.margin.left, 50);
+     };
+ 
+     var options = {
+       beforePageContent: header,
+       margin: {
+         top: 80
+       },
+       startY: doc.autoTableEndPosY() + 20
+     };
+ 
+     // doc.autoTable(res.columns, res.data, options);
+     doc.autoTable(res.columns, res.data, { beforePageContent: header, margin: { top: 80 }, theme: 'grid' });
+     doc.save("table.pdf");
+   }
+ 
+ 
+ 
+   isSortRider: any = true;
+   sortByRider() {
+     if (this.isSortRider) {
+       this.drawingsResponse[0].list.sort(function (a, b) {
+         if (a.rider_id.first_name < b.rider_id.first_name) return -1;
+         if (a.rider_id.first_name > b.rider_id.first_name) return 1;
+         return 0;
+       })
+     } else {
+       this.drawingsResponse[0].list.sort(function (b, a) {
+         if (a.rider_id.first_name < b.rider_id.first_name) return -1;
+         if (a.rider_id.first_name > b.rider_id.first_name) return 1;
+         return 0;
+       })
+     }
+     this.isSortRider = !this.isSortRider;
+   }
+ 
+   
+   isSortDrawNumber: any = false;
+   sortByDrawNumber() {
+     if (this.isSortDrawNumber) {
+       this.drawingsResponse[0].list.sort(function (a, b) {
+         if (a.draw_number < b.draw_number) return -1;
+         if (a.draw_number > b.draw_number) return 1;
+         return 0;
+       })
+     } else {
+       this.drawingsResponse[0].list.sort(function (b, a) {
+         if (a.draw_number < b.draw_number) return -1;
+         if (a.draw_number > b.draw_number) return 1;
+         return 0;
+       })
+     }
+     this.isSortDrawNumber = !this.isSortDrawNumber;
+   }
+ 
+   substitute_contenstant(dlist,dnum){
+     var current = this;
+       current.router.navigate(["producer/substitute-drawlist/" + dlist['_id'] + "/" + dnum]);
+   }
+   */
 }
-

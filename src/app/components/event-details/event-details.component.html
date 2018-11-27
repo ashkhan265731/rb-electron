@@ -1,3 +1,35 @@
+<div class="container">
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">COM Namne</th>
+        <th scope="col">Manufacturer</th>
+        <th scope="col">Serial Number</th>
+        <th scope="col">PNP ID</th>
+        <th scope="col">Location ID</th>
+        <th scope="col">Vendor ID</th>
+        <th scope="col">Product ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let port of ports;let i=index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{port.comName}}</td>
+        <td>{{port.manufacturer}}</td>
+        <td>{{port.serialNumber}}</td>
+        <td>{{port.pnpId}}</td>
+        <td>{{port.locationId}}</td>
+        <td>{{port.vendorId}}</td>
+        <td>{{port.productId}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<br />
+
+
+<!-- Container Wrapper-->
 <div class="content-wraper">
   <div class="container-fluid" style="padding: 0px;">
     <div class="row">
@@ -7,7 +39,7 @@
             <div class="page-title">
               <h4>
                 <i class="icon-arrow-left52 position-left"></i>
-                <span class="text-semibold">Home</span> - Event Details</h4>
+                <span class="text-semibold">Home</span> - Event Raceclass List</h4>
               <a class="heading-elements-toggle">
                 <i class="icon-more"></i>
               </a>
@@ -19,97 +51,76 @@
             </a>
             <ul class="breadcrumb">
               <li>
-                <a routerLink="/home">
-                  <i class="icon-home2 position-left"></i> Home</a>
+                <a routerLink="/producer/dashboard"><i class="icon-home2 position-left"></i> Home</a>
               </li>
-              <li>
-                <a routerLink="/home">Event List</a>
-              </li>
-              <li class="active">Select Race Type to configure Device</li>
+              <li class="active">Event Raceclass List</li>
             </ul>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <!-- Container Fluid -->
   <div class="container-fluid">
     <div class="row">
-      <div class="col-xs-12 col-sm-12 ">
-        <!-- race class row starts -->
-        <div class="card ">
-          <div class="card-body ">
+      <div class="col-xs-5 col-sm-5">
+        <div class="card p-2">
+          <div class="card-body row">
             <h5>Race Class</h5>
             <div class=" table-responsive table-hover">
-              {{eventData.racetype | json}}
               <table class="table">
-                <thead class="thead-light">
-                  <tr>
-                    <th class="w-200">Name</th>
-                    <th scope="col"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let racetype of eventData.racetype;let i=index">
-                    <td scope="row" class="w-200">
-                      <a [routerLink]="['/userreportbyeventdetails',eventId,racetype?.type,'raceclass']" style="cursor:pointer; text-transform: capitalize">{{racetype?.type}}</a>
-                    </td>
-                    <td><a [routerLink]="['/userreportbyeventdetails',eventId,racetype?.type,'raceclass']" style="cursor:pointer; text-transform: capitalize">Select</a></td>
-                  </tr>
-                </tbody>
+                <tr *ngFor="let racetype of eventData.racetype;let i=index" (click)="checkDrawExists(i,racetype,'raceclass');"
+                  [class.active]="sIndex === i">
+                  <td scope="row" class="w-200">
+                    <a style="cursor:pointer; text-transform: capitalize">{{racetype?.type}}</a>
+                  </td>
+                </tr>
               </table>
             </div>
           </div>
         </div>
-        <!-- race class row ends -->
-        <br>
-        <br>
-        <!-- sessionTypeList row starts -->
-        <div class="card">
-          <div class="card-body">
-            <h5>Session Types
-
-              <span class="edit marg-right" *ngIf="eventData.producer_id==sessionid" data-toggle="modal" data-target="#exampleModal">
-                <a (click)="openDialog(eventData?.timeslot,'timeslot','add');modalTitle='Add Session Types';">
-                  <i class="material-icons add-icon">add</i>
-                </a>
-              </span>
-            </h5>
-            <div class="table-responsive table-hover">
-              <table class="table">
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">Day</th>
-                    <th>Session Type Name</th>
-                    <th scope="col">Time</th>
-                    <th scope="col"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let timeslot of eventData.timeslot;let i=index">
-                    <td scope="row">
-                      <a [routerLink]="['/userreportbyeventdetails',eventId,timeslot?.s_day,'sessionTypeList']" style="cursor:pointer;">{{timeslot?.s_day}}</a>
-                    </td>
-                    <td scope="row">
-                      {{timeslot?.session_type}}
-                    </td>
-                    <td>
-                      {{timeslot?.from | date:'shortTime'}} - {{timeslot?.to | date:'shortTime'}}
-                    </td>
-                    <td>
-                      <a [routerLink]="['/userreportbyeventdetails',eventId,timeslot?.s_day,'sessionTypeList']" style="cursor:pointer;">Select</a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <!-- sessionTypeList row ends -->
       </div>
-    </div>
-    <div class="row">
-      <div class="col-xs-12 col-sm-12">
-        <button class="btn btn-primary pull-right" type="button" (click)="goBack()">Back</button>
+      <div class="col-xs-7 col-sm-7">
+        <div class="row p-2">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <button type="button" class="btn btn-primary" (click)="openPort()">Open</button>
+            <button type="button" class="btn btn-secondary" (click)="readPort()">Read</button>
+          </div>
+        </div>
+        <div class="card p-2" *ngIf="drawingsResponse?.length>0">          
+          <div class="card-body row">
+            <h5>Draw/Assignments for {{drawingsResponse[0]?.raceclass_name}}</h5>
+            <div class=" table-responsive table-hover">
+              <table class="table" id="report-table">
+                <thead class="thead-light">
+                  <tr>
+                    <th class="w-200">DrawNumber</th>
+                    <th class="w-200">Rider</th>
+                    <th class="w-200">Horse</th>
+                    <th class="w-200">Race Time</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let dlist of drawingsResponse[0].list;let i=index">
+                    <td>
+                      {{dlist.draw_number}}
+                    </td>
+                    <td>
+                      {{dlist?.rider_id?.first_name+" "+dlist?.rider_id?.last_name }}
+                    </td>
+                    <td>
+                      {{dlist?.horse_id?.horse_name }}
+                    </td>
+                    <td>
+                      {{dlist?.raceTime }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

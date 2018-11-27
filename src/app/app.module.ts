@@ -21,7 +21,6 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { EventDetailsComponent } from './components/event-details/event-details.component';
-import { DrawListByEventCategoryComponent } from './components/draw-list-by-event-category/draw-list-by-event-category.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -35,7 +34,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     WebviewDirective,
     LoginComponent,
     EventDetailsComponent,
-    DrawListByEventCategoryComponent,
   ],
   imports: [
     BrowserModule,
