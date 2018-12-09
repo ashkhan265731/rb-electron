@@ -4,6 +4,7 @@ import { EventDetailsComponent } from './components/event-details/event-details.
 
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { LayoutComponent } from './components/layout/layout.component';
 
 const routes: Routes = [
     
@@ -11,14 +12,29 @@ const routes: Routes = [
     	path: '', 
     	component: LoginComponent
   	},
+    // {
+    //   path: 'home',
+    //   component: HomeComponent
+    // },
+    // {
+    //   path: 'event_details/:eid', 
+    //   component: EventDetailsComponent
+    // },      
+
     {
-      path: 'home',
-      component: HomeComponent
-    },
-    {
-      path: 'event_details/:eid', 
-      component: EventDetailsComponent
-    },      
+      path: 'layout',
+      component: LayoutComponent,
+      children:[
+        {
+          path:'home',
+          component:HomeComponent
+        },
+        {
+          path: 'event_details/:eid', 
+          component: EventDetailsComponent
+        },
+      ]
+    } 
 ];
 
 @NgModule({

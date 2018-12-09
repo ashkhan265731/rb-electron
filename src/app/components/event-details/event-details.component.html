@@ -1,72 +1,69 @@
-<div class="container">
-  <table class="table">
-    <thead class="thead-dark">
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">COM Namne</th>
-        <th scope="col">Manufacturer</th>
-        <th scope="col">Serial Number</th>
-        <th scope="col">PNP ID</th>
-        <th scope="col">Location ID</th>
-        <th scope="col">Vendor ID</th>
-        <th scope="col">Product ID</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let port of ports;let i=index">
-        <th scope="row">{{i+1}}</th>
-        <td>{{port.comName}}</td>
-        <td>{{port.manufacturer}}</td>
-        <td>{{port.serialNumber}}</td>
-        <td>{{port.pnpId}}</td>
-        <td>{{port.locationId}}</td>
-        <td>{{port.vendorId}}</td>
-        <td>{{port.productId}}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<br />
+
 
 
 <!-- Container Wrapper-->
 <div class="content-wraper">
-  <div class="container-fluid" style="padding: 0px;">
-    <div class="row">
-      <div class="col-xs-12 col-sm-12">
-        <div class="page-header page-header-default">
-          <div class="page-header-content">
-            <div class="page-title">
-              <h4>
-                <i class="icon-arrow-left52 position-left"></i>
-                <span class="text-semibold">Home</span> - Event Raceclass List</h4>
-              <a class="heading-elements-toggle">
-                <i class="icon-more"></i>
-              </a>
-            </div>
-          </div>
-          <div class="breadcrumb-line">
-            <a class="breadcrumb-elements-toggle">
-              <i class="icon-menu-open"></i>
-            </a>
-            <ul class="breadcrumb">
-              <li>
-                <a routerLink="/producer/dashboard"><i class="icon-home2 position-left"></i> Home</a>
-              </li>
-              <li class="active">Event Raceclass List</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+
+  <div class="container-fluid table-div">
+<div class="row">
+  <div class="col-md-12">
+    <ul>
+      <li *ngIf="deviceStatus==''">
+          <span id="grey" ></span>  no device
+      </li>
+      <li *ngIf="deviceStatus=='connected'">
+          <span id="connected" ></span>connected
+      </li>
+      <li *ngIf="deviceStatus=='disconnected'">
+          <span id="disconnected" ></span>disconnected
+      </li>
+    </ul>
+      
+      
+      
     </div>
   </div>
+  
+    <table class="table table-responsive">
+      <thead >
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">COM Namne</th>
+          <th scope="col">Manufacturer</th>
+          <th scope="col">Serial Number</th>
+          <th scope="col">PNP ID</th>
+          <th scope="col">Location ID</th>
+          <th scope="col">Vendor ID</th>
+          <th scope="col">Product ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let port of ports;let i=index">
+          <th scope="row">{{i+1}}</th>
+          <td>{{port.comName}}</td>
+          <td>{{port.manufacturer}}</td>
+          <td>{{port.serialNumber}}</td>
+          <td>{{port.pnpId}}</td>
+          <td>{{port.locationId}}</td>
+          <td>{{port.vendorId}}</td>
+          <td>{{port.productId}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br />
   <!-- Container Fluid -->
   <div class="container-fluid">
     <div class="row">
       <div class="col-xs-5 col-sm-5">
-        <div class="card p-2">
-          <div class="card-body row">
-            <h5>Race Class</h5>
+
+
+
+          <div class="panel panel-default" style="zoom: 1;" >
+              <div class="panel-heading clearfix">
+                <h4 class="panel-title">Race Class</h4>
+              </div>          
+              <div class="panel-body" style="display: block;">
             <div class=" table-responsive table-hover">
               <table class="table">
                 <tr *ngFor="let racetype of eventData.racetype;let i=index" (click)="checkDrawExists(i,racetype,'raceclass');"
@@ -87,12 +84,17 @@
             <button type="button" class="btn btn-secondary" (click)="readPort()">Read</button>
           </div>
         </div>
-        <div class="card p-2" *ngIf="drawingsResponse?.length>0">          
-          <div class="card-body row">
-            <h5>Draw/Assignments for {{drawingsResponse[0]?.raceclass_name}}</h5>
+      
+          
+          <div class="panel panel-default" style="zoom: 1;" *ngIf="drawingsResponse?.length>0">
+              <div class="panel-heading clearfix">
+                <h4 class="panel-title">Draw/Assignments for {{drawingsResponse[0]?.raceclass_name}}</h4>
+              </div>
+            
+          <div class="panel-body" style="display: block;">
             <div class=" table-responsive table-hover">
               <table class="table" id="report-table">
-                <thead class="thead-light">
+                <thead >
                   <tr>
                     <th class="w-200">DrawNumber</th>
                     <th class="w-200">Rider</th>
@@ -119,7 +121,7 @@
                 </tbody>
               </table>
             </div>
-          </div>
+        </div>
         </div>
       </div>
     </div>

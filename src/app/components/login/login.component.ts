@@ -39,7 +39,9 @@ export class LoginComponent implements OnInit {
 
           if (user.user_type == "producer") {
             current.loginMsg = "Username logged in";
-            current.router.navigate(["home"]);
+            // current.router.navigate(["home"]);
+            current.router.navigate(['layout']);
+
           }
           else {
             current.loginMsg = "User is not producer";

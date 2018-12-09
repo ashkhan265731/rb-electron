@@ -1,0 +1,53 @@
+
+    .container {
+        width: 100%;
+        margin: 0 auto;
+        .inner-container {
+            width: 100%;
+            margin: 0px auto;
+            padding: 0;
+            background: lightgray;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            display: flex;
+            min-height: 100vh;
+            .wrap-login {
+                padding-right: 50px;
+                padding-left: 50px;
+                padding-bottom: 30px;
+                padding-top: 77px;
+                width: 450px;
+                background: #fff;
+                border-radius: 3px;
+                overflow: hidden;
+                .form-title {
+                    font-family: sans-serif;
+                    font-size: 30px;
+                    color: #333333;
+                    line-height: 1.2;
+                    text-transform: uppercase;
+                    text-align: center;
+                    width: 100%;
+                    display: block;
+                    padding-bottom: 10px;
+                }
+                .wrap-input {
+                    margin-bottom: 16px;
+                    position: relative;
+                    width: 100%;
+                    z-index: 1;
+                }
+                // .login-form-button {
+                //     width: 100%;
+                //     display: flex;
+                //     flex-wrap: wrap;
+                //     justify-content: center;
+                //     &:hover{
+                //         color: red;
+                //     }
+                // }
+            }
+        }
+    }

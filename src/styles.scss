@@ -3,4 +3,233 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  font-size: 14px;
+  // background-color: gainsboro;
+background-color: #f8f9fa;
+}
+.main-container{
+  margin-top: 80px;
+}
+
+.content-wraper{
+  min-height: 1000px;
+  background: url('./assets/images/2.jpg');
+  height: 100%;
+    width: 100%;
+    position: relative;
+    display: table;
+    table-layout: fixed;
+    // background: url(../admin/2.jpg);
+    z-index: 00000;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.pull-left{
+  float: left;
+}
+.pull-right{
+  float: right;
+}
+.capitalize {
+  text-transform: capitalize;
+}
+th,td,a{
+  text-transform: capitalize;
+}
+ul,li,a{
+  text-transform: capitalize;
+}
+.cursor{
+  cursor: auto;
+}
+.on-event{
+  color: green;
+}
+.u-event{
+  color: rgb(40, 115, 158);
+}
+.e-event{
+  color:red;
+}
+
+.material-icons.valign-icon{
+  vertical-align: middle ;
+}
+@media (min-width: 769px){
+  .page-container {
+      width: 100%;
+      display: table;
+      table-layout: fixed;
+  }
+  .page-content {
+      display: table-row;
+  }
+  .content-wrapper {
+      display: table-cell;
+      vertical-align: top;
+  }
+ 
+  .navbar-expand-lg .navbar-toggler {
+      display: none;
+      margin-left: 145px;
+  }
+}
+
+.content-wrapper {
+  width: 100%;
+
+}
+
+.page-container {
+  position: relative;
+  overflow: hidden;
+}
+
+
+.page-title h1, .page-title h2, .page-title h3, .page-title h4, .page-title h5, .page-title h6 {
+  margin: 0;
+}
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -.015em;
+}
+.position-left {
+  margin-right: 7px;
+}
+.text-semibold {
+  font-weight: 500;
+}
+.page-header-default {
+  background-color: #fff;
+  margin-bottom: 20px;
+  -webkit-box-shadow: 0 1px 0 0 #ddd;
+  box-shadow: 0 1px 0 0 #ddd;
+}
+
+.page-header {
+  margin: 0;
+  padding: 0;
+  border-bottom-width: 0;
+}
+
+.page-header-content {
+  position: relative;
+  background-color: inherit;
+  padding: 0 20px;
+}
+
+.page-title {
+  padding: 32px 36px 32px 0;
+  display: block;
+  position: relative;
+}
+
+.heading-elements {
+  background-color: inherit;
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  height: 36px;
+  margin-top: -18px;
+}
+
+.heading-elements .heading-btn-group {
+  font-size: 0;
+}
+
+.heading-elements:not(.visible-elements) .btn-float.btn-link {
+  margin-top: -14px;
+}
+
+.page-header-default .breadcrumb-line:not([class*=bg-]) {
+  background-color: #fcfcfc;
+}
+.page-header-default .page-header-content+.breadcrumb-line {
+  border-bottom-width: 0;
+}
+.page-header-default .page-header-content+.breadcrumb-line, .page-header-inverse .page-header-content+.breadcrumb-line {
+  margin-bottom: 0;
+}
+.page-header-content+.breadcrumb-line {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+/****************** breadcrumb ***********************/
+.breadcrumb-line:not([class*=bg-]) {
+  background-color: #fff;
+}
+.breadcrumb-line {
+  position: relative;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.breadcrumb-elements-toggle, .breadcrumb-elements-toggle:focus, .breadcrumb-elements-toggle:hover, .heading-elements-toggle, .heading-elements-toggle:focus, .heading-elements-toggle:hover {
+  color: inherit;
+}
+.breadcrumb-elements-toggle {
+  float: right;
+  cursor: pointer;
+  line-height: 1;
+  margin-top: 12px;
+}
+
+.breadcrumb-line .breadcrumb {
+  margin-right: 46px;
+}
+.breadcrumb {
+  border-radius: 0;
+  margin-bottom: 0;
+}
+.breadcrumb {
+  padding: 10px 0;
+  margin-bottom: 20px;
+  list-style: none;
+  background-color: transparent;
+  border-radius: 3px;
+}
+.breadcrumb>li {
+  position: relative;
+}
+.breadcrumb>li {
+  display: inline-block;
+}
+.breadcrumb>li>a {
+  color: #333;
+}
+.breadcrumb>li i {
+  display: inline-block;
+  font-size: 12px;
+}
+
+.position-left {
+  margin-right: 7px;
+}
+
+.breadcrumb>.active {
+  color: #999;
+}
+.breadcrumb>li {
+  position: relative;
+}
+.breadcrumb>li {
+  display: inline-block;
+}
+.breadcrumb>li+li:before {
+  content: "/\00a0";
+  padding: 0 5px;
+  color: #333;
+}
+
+@media (min-width: 769px){
+  .page-title {
+      padding-right: 0;
+  }
+  .breadcrumb-elements-toggle, .heading-elements-toggle {
+      display: none;
+  }
+  .breadcrumb-line .breadcrumb {
+      margin-right: 0;
+  }
 }

@@ -1,22 +1,32 @@
 <div class="container">
-  <div class="row justify-content-md-center">
-    <div class="col-sm-4">
-      <form class="form-signin" (ngSubmit)="login()">
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-        <div class="" role="alert" *ngIf="loginMsg">
-          {{loginMsg}}
+  <div class="inner-container">
+    <div class="wrap-login">
+      <div class="row justify-content-md-center">
+        <div class="col-sm-12">
+          <form class="form-signin" (ngSubmit)="login()">
+            <h1 class="h3 mb-3 font-weight-normal form-title">Login</h1>
+            <div class="" role="alert" *ngIf="loginMsg">
+              {{loginMsg}}
+            </div>
+            <div class="wrap-input">
+              <label for="inputEmail" class="sr-only">Email address</label>
+              <input type="email" name="email" id="inputEmail" class="form-control" [(ngModel)]="loginUser.email" placeholder="Email" required
+                autofocus>
+            </div>
+            <div class="wrap-input">
+              <label for="inputPassword" class="sr-only">Password</label>
+              <input type="password" name="password" id="inputPassword" class="form-control" [(ngModel)]="loginUser.password" placeholder="Password"
+                required>
+            </div>
+            <div class="checkbox mb-3">
+              <label>
+                <input type="checkbox" value="remember-me"> Remember me
+              </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit" name="action">Sign in</button>
+          </form>
         </div>
-        <label for="inputEmail" class="sr-only">Email address</label>
-        <input type="email" name="email" id="inputEmail" class="form-control" [(ngModel)]="loginUser.email" placeholder="Email" required autofocus>
-        <label for="inputPassword" class="sr-only">Password</label>
-        <input type="password" name="password" id="inputPassword" class="form-control" [(ngModel)]="loginUser.password" placeholder="Password" required>
-        <div class="checkbox mb-3">
-          <label>
-            <input type="checkbox" value="remember-me"> Remember me
-          </label>
-        </div>
-        <button class="btn btn-lg btn-primary btn-block" type="submit" name="action">Sign in</button>
-      </form>
+      </div>
     </div>
   </div>
 </div>

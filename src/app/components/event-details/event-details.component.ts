@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { LoginService } from './../../services/login.service';
 import { ElectronService } from '../../providers/electron.service';
+import { timer } from 'rxjs';
 
 declare var jsPDF: any;
 
@@ -24,7 +25,7 @@ export class EventDetailsComponent implements OnInit {
   pageTitle: any = 'raceclasslist';
   sessionid: any = '';
   serviceUrl = 'https://racebox.herokuapp.com';
-
+  //serviceUrl = 'http://192.168.0.106:3000';
   eventData: any = {};
   alertMessage: any = null;
   errorLog: any = false;
@@ -38,6 +39,7 @@ export class EventDetailsComponent implements OnInit {
   rider_horse_lists: any = [];
   drawingsResponse: any;
   hideSortIcon: any = true;
+  deviceStatus:any = '';
 
 
   constructor(
@@ -70,6 +72,25 @@ export class EventDetailsComponent implements OnInit {
 
     }).catch((err: any) => {
       console.log('error occured while listening to serial port')
+    });
+
+    const source = timer(1000, 10000);
+    const subscribe = source.subscribe((val) => {
+      console.log(val);
+
+      this.electron.serialPort.list().then((ports: any) => {
+        if(ports && ports.length >0){
+          console.log('Connected');
+          this.deviceStatus = 'connected';
+        }else{
+          console.log('disconnected');
+          this.deviceStatus = 'disconnected';
+        }
+
+  
+      }).catch((err: any) => {
+        console.log('error occured while listening to serial port')
+      });
     });
   }
 
@@ -180,8 +201,9 @@ export class EventDetailsComponent implements OnInit {
           time: raceTime,
           position: i        
         }
-
-        var response = this.http.post(this.serviceUrl + "/addraceresults" , {"data": JSON.stringify(data) })
+        console.log("data-----");
+        console.log(data);
+        var response = this.http.post(this.serviceUrl + "/addraceresults" , {data: JSON.stringify(data) })
         .subscribe(function (response) {
           this.errorLog = false;
           this.alertMessage = {

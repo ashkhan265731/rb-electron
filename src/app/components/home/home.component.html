@@ -1,38 +1,5 @@
 <div class="content-wraper">
 
-  <div class="container-fluid" style="padding: 0px;">
-    <div class="row">
-      <div class="col-xs-12 col-sm-12">
-
-        <div class="page-header page-header-default">
-          <div class="page-header-content">
-            <div class="page-title">
-              <h4>
-                <i class="icon-arrow-left52 position-left"></i>
-                <span class="text-semibold">Home</span> - Draw Events List</h4>
-              <a class="heading-elements-toggle">
-                <i class="icon-more"></i>
-              </a>
-            </div>
-          </div>
-
-          <div class="breadcrumb-line">
-            <a class="breadcrumb-elements-toggle">
-              <i class="icon-menu-open"></i>
-            </a>
-            <ul class="breadcrumb">
-              <li>
-                <a routerLink="/producer/dashboard">
-                  <i class="icon-home2 position-left"></i> Home</a>
-              </li>
-              <li class="active">Draw Events List</li>
-            </ul>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </div>
 
   <div class="container-fluid">
 
@@ -64,7 +31,7 @@
                 <tbody>
                   <tr *ngFor="let events of eventsListData;let i=index">
                     <td>{{page_from + i+1}}</td>
-                    <td> <a [routerLink]="['/event_details',events?._id]" class="link-btn">{{events.event_name}}</a></td>
+                    <td> <a [routerLink]="['/layout/event_details',events?._id]" class="link-btn">{{events.event_name}}</a></td>
                     <td>{{events.from_date | date: 'dd/MM/yyyy'}}-{{events.to_date | date: 'dd/MM/yyyy'}}</td>
                   </tr>
                 </tbody>
